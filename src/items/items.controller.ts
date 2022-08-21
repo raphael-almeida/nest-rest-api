@@ -6,37 +6,43 @@ import {
   Delete,
   Body,
   Req,
-  Res,
   Param,
 } from '@nestjs/common';
 import { CreateItemDto } from './dto/create-item.dto';
-import { Request, Response } from 'express';
+import { Request } from 'express';
+import { ItemsService } from './items.service';
+import { Item } from './interfaces/item.interface';
 
 @Controller('items')
 export class ItemsController {
+  constructor(private readonly itemsService: ItemsService) {}
+
   @Get()
-  findAll(@Req() req: Request, @Res() res: Response): Response {
+  findAll(@Req() req: Request): Promise<Item[]> {
     console.log(req.url);
-    return res.send('Get all items!!');
+    return this.itemsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id): string {
-    return `item ${id}`;
+  findOne(@Param('id') id): Promise<Item> {
+    return this.itemsService.findOne(id);
   }
 
   @Post()
-  create(@Body() item: CreateItemDto): string {
-    return `Name: ${item.name}\nDescription: ${item.description}\nQuantity: ${item.qty}`;
+  create(@Body() item: CreateItemDto): Promise<Item> {
+    return this.itemsService.create(item);
   }
 
   @Delete(':id')
-  delete(@Param('id') id): string {
-    return `Delete ${id}`;
+  delete(@Param('id') id): Promise<Item> {
+    return this.itemsService.delete(id);
   }
 
   @Put(':id')
-  update(@Param('id') id, @Body() updateItem: CreateItemDto): string {
-    return `Update ${id}\n Name: ${updateItem.name}\nDescription: ${updateItem.description}\nQuantity: ${updateItem.qty}`;
+  update(
+    @Param('id') id: string,
+    @Body() updateItem: CreateItemDto,
+  ): Promise<Item> {
+    return this.itemsService.update(id, updateItem);
   }
 }
